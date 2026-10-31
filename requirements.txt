@@ -1,3 +1,1 @@
-socket>=1.0.0
-requests>=1.0.0
-logging>=1.0.0
+# No third-party dependencies: this tool uses only the Python standard library.

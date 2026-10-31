@@ -102,7 +102,7 @@ def banner_grabbing(host, port):
 
 def validate_host(host):
     """
-    Validates the host input.  Simple check to prevent obvious errors.  More robust validation could be added.
+    Validates the host input.  Simple check to prevent obvious errors.  More validation could be added.
 
     Args:
         host (str): The host string to validate.
