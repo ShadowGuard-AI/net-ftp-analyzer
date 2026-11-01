@@ -37,6 +37,12 @@ def check_anonymous_login(host, port):
         response = s.recv(1024).decode('utf-8', errors='ignore')
         logging.debug(f"Initial FTP response: {response.strip()}")
 
+        # Each step trusts a single recv to hold the whole reply. A
+        # multi line greeting or a reply split across packets can put
+        # something other than the code at the front of the buffer, and
+        # the startswith checks below then read the wrong thing. I also
+        # require 331 here, so a server that logs anonymous in at once
+        # with a 230 after USER gets reported as blocked, not open.
         # Send USER command
         s.send(b"USER anonymous\r\n")
         response = s.recv(1024).decode('utf-8', errors='ignore')
@@ -71,6 +77,9 @@ def check_anonymous_login(host, port):
         logging.error(f"An unexpected error occurred: {e}")
         return False
 
+# This opens its own connection, separate from the login check, and
+# main throws the returned banner away: the banner reaches the log
+# only, and the server sees two connections for one run.
 def banner_grabbing(host, port):
     """
     Performs banner grabbing to gather information about the FTP server.
@@ -154,6 +163,9 @@ def main():
     if not validate_port(port):
         sys.exit(1)
 
+    # Whatever the checks find, main returns and the process exits 0.
+    # A refused anonymous login and a timeout look the same to a script
+    # watching the exit code; the log lines are the only result.
     logging.info(f"Analyzing FTP server: {host}:{port}")
 
     # Banner Grabbing
